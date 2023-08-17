@@ -1,8 +1,8 @@
-name: Test Build
+name: Start build ssr+  aarch64_generic by wk
 
 on:
-  workflow_dispatch:
-
+ workflow_dispatch:
+ 
 jobs:
   build:
     name: Test ${{ matrix.arch }}
@@ -11,9 +11,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - arch: aarch64_cortex-a53
-            target: mvebu-cortexa53
-
+          - arch: aarch64_generic
+            
     steps:
       - uses: actions/checkout@v3
         with:
@@ -21,7 +20,7 @@ jobs:
 
       - name: Determine branch name
         run: |
-          BRANCH="${GITHUB_BASE_REF#refs/heads/}"
+          BRANCH="master"
           echo "Building for $BRANCH"
           echo "BRANCH=$BRANCH" >> $GITHUB_ENV
 
@@ -31,7 +30,7 @@ jobs:
           PKG_ROOTS=$(find . -name Makefile | \
             grep -v ".*/src/Makefile" | \
             sed -e 's@./\(.*\)/Makefile@\1/@')
-          CHANGES=$(git rev-list --count origin/main..$(git branch --show-current))
+          CHANGES=$(git diff --diff-filter=d --name-only origin/$BRANCH)
 
           for ROOT in $PKG_ROOTS; do
             for CHANGE in $CHANGES; do
@@ -97,3 +96,4 @@ jobs:
           name: ${{env.ARCHIVE_NAME}}-packages
           path: |
             *.ipk
+          
